@@ -223,3 +223,17 @@ footer{justify-content:flex-end}
 #about .about-content .fact-values>span{white-space:nowrap}
 #about .about-content .fact-values>span:not(:last-child)::after{content:'·';display:inline-block;margin:0 6px;color:#959d8a}
 @media(max-width:640px){#about .portrait-play:has(.restored-2d-portrait){max-width:310px}#about .about-content>.profile-facts{margin-top:16px;padding-top:14px}}
+
+/* Leaf pointer: enabled only after a fine pointer has moved. */
+.leaf-pointer{position:fixed;left:0;top:0;width:30px;height:34px;z-index:2147483647;pointer-events:none;visibility:hidden;contain:layout style;filter:drop-shadow(0 2px 2px #344c3320)}
+.leaf-pointer svg{display:block;width:100%;height:100%;transform-origin:4px 3px;transition:transform .2s ease}
+.leaf-pointer.is-link svg{transform:rotate(-14deg) scale(1.12)}
+.leaf-pointer.is-tapped svg{animation:leaf-tap .48s ease-in-out}
+@keyframes leaf-tap{0%,100%{transform:rotate(0)}22%{transform:rotate(-28deg) scale(.94)}48%{transform:rotate(22deg) scale(1.08)}72%{transform:rotate(-12deg)}}
+@media(hover:hover) and (pointer:fine){
+ html.leaf-pointer-active,html.leaf-pointer-active *{cursor:none!important}
+ .leaf-pointer.is-visible{visibility:visible}
+ html.leaf-pointer-text,html.leaf-pointer-text *{cursor:text!important}
+ html.leaf-pointer-text .leaf-pointer{visibility:hidden}
+}
+@media(prefers-reduced-motion:reduce){.leaf-pointer svg{transition:none}.leaf-pointer.is-tapped svg{animation:none;transform:rotate(-12deg) scale(.94)}}
