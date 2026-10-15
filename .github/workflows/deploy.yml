@@ -4,7 +4,7 @@ on:
     branches: [main]
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 concurrency:
@@ -18,20 +18,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Import reviewed portfolio
-        if: hashFiles('portfolio-import.part*') != ''
-        shell: bash
-        run: |
-          set -euo pipefail
-          cat portfolio-import.part* > /tmp/portfolio.tar.gz
-          echo '68f23cf83c4b31dcf0ca1d287dcc35ff81fb7e4a1cd88c6903bad97d3e4100c3  /tmp/portfolio.tar.gz' | sha256sum -c -
-          tar --exclude='.github' -xzf /tmp/portfolio.tar.gz
-          rm portfolio-import.part*
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "Publish reviewed portfolio source and assets"
-          git push
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
