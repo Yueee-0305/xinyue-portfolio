@@ -89,3 +89,22 @@ document.addEventListener('pointerleave',resetGaze);window.addEventListener('blu
 new IntersectionObserver(entries=>{portraitVisible=entries[0].isIntersecting;if(!portraitVisible)resetGaze()},{threshold:0}).observe(portrait);
 portrait.addEventListener('click',()=>{clearTimeout(teddyTimer);portrait.classList.remove('is-playful');void portrait.offsetWidth;portrait.classList.add('is-playful');teddyTimer=setTimeout(()=>portrait.classList.remove('is-playful'),1400);clearTimeout(happyTimer);resetGaze();portrait.classList.add('is-happy');happyTimer=setTimeout(()=>portrait.classList.remove('is-happy'),1500)});
 portrait.addEventListener('keydown',e=>{const rx=Number(robot.dataset?.gazeRangeX)||7,ry=Number(robot.dataset?.gazeRangeY)||5,deltas={ArrowLeft:[-rx,0],ArrowRight:[rx,0],ArrowUp:[0,-ry],ArrowDown:[0,ry]};if(deltas[e.key]){e.preventDefault();resetGaze();portrait.style.setProperty('--gaze-x',deltas[e.key][0]+'px');portrait.style.setProperty('--gaze-y',deltas[e.key][1]+'px')}else if(e.key==='Escape')resetGaze()});portrait.addEventListener('blur',resetGaze);
+
+
+// A quiet botanical pointer. Native cursors remain on touch devices and text fields.
+(()=>{const fine=matchMedia('(hover: hover) and (pointer: fine)');if(!fine.matches)return;
+const root=document.documentElement,leaf=document.createElement('div');leaf.className='leaf-pointer';leaf.setAttribute('aria-hidden','true');
+leaf.innerHTML='<svg viewBox="0 0 30 34" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 3C18 2 29 8 26 19 24 28 13 30 8 22 4 16 6 9 4 3Z" fill="#91ad73" stroke="#4f704b" stroke-width="1.2" stroke-linejoin="round"/><path d="M4 3C10 11 17 20 20 30M10 11L19 12M14 17L23 18M14 17L10 21" stroke="#526f47" stroke-width="1.1" stroke-linecap="round"/><path d="M7 5C14 5 20 8 22 11" stroke="#c9d7ac" stroke-width="1.5" stroke-linecap="round"/></svg>';
+document.body.append(leaf);let frame=0,x=0,y=0,timer;
+function hide(){leaf.classList.remove('is-visible');root.classList.remove('leaf-pointer-active','leaf-pointer-text')}
+document.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse'||!fine.matches){hide();return}x=e.clientX;y=e.clientY;
+// Keep the pointer visible above native modal dialogs.
+const modal=e.target.closest('dialog[open]');const host=modal||document.body;if(leaf.parentElement!==host)host.append(leaf);
+const text=!!e.target.closest('input,textarea,[contenteditable="true"]');
+root.classList.toggle('leaf-pointer-text',text);root.classList.add('leaf-pointer-active');leaf.classList.add('is-visible');
+leaf.classList.toggle('is-link',!!e.target.closest('a,button,select,summary,[role="button"]'));
+if(!frame)frame=requestAnimationFrame(()=>{leaf.style.transform='translate3d('+(x-4)+'px,'+(y-3)+'px,0)';frame=0});
+},{passive:true});
+document.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||!fine.matches)return;clearTimeout(timer);leaf.classList.remove('is-tapped');void leaf.offsetWidth;leaf.classList.add('is-tapped');timer=setTimeout(()=>leaf.classList.remove('is-tapped'),480)},{passive:true});
+document.documentElement.addEventListener('pointerleave',hide);window.addEventListener('blur',hide);document.addEventListener('keydown',e=>{if(e.key==='Tab')hide()});fine.addEventListener('change',hide);
+})();
